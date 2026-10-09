@@ -1071,6 +1071,76 @@
                                         </StackPanel>
                                     </DockPanel>
 
+                                    <!-- O que o launcher descobriu sobre o jogo, ANTES do clique: motor,
+                                         API, bitness, DLSS proprio, e a rota que isso decide. Todas as
+                                         decisoes ja eram tomadas pelo instalador; aqui elas viram algo
+                                         que a pessoa le, e o interruptor vira "so clicar em Ativar". -->
+                                    <Border Margin="0,10,0,0" Padding="12,10" CornerRadius="9"
+                                            Background="#22000000" BorderBrush="#4D9F86E8" BorderThickness="1"
+                                            Visibility="{Binding TemPerfil, Converter={StaticResource BoolToVis}}">
+                                        <StackPanel>
+                                            <DockPanel>
+                                                <Button DockPanel.Dock="Right" VerticalAlignment="Center"
+                                                        Style="{StaticResource AccentButton}" Padding="14,7"
+                                                        Margin="10,0,0,0"
+                                                        Command="{Binding Dlss5Command}"
+                                                        Visibility="{Binding Dlss5Ready, Converter={StaticResource NotToVis}}"
+                                                        AutomationProperties.Name="{loc:Tr Profile_Activate}">
+                                                    <TextBlock Text="{loc:Tr Profile_Activate}" FontWeight="SemiBold"/>
+                                                </Button>
+                                                <StackPanel>
+                                                    <TextBlock Text="{loc:Tr Profile_Detected}" FontSize="10.5"
+                                                               FontWeight="Bold" Foreground="{StaticResource TextFaintBrush}"/>
+                                                    <TextBlock Text="{Binding Perfil.Resumo}" FontSize="12" Margin="0,3,0,0"
+                                                               FontWeight="SemiBold" TextWrapping="Wrap" Foreground="#E8D4F5"/>
+                                                    <TextBlock FontSize="11.5" Margin="0,3,0,0" TextWrapping="Wrap"
+                                                               Foreground="{StaticResource TextDimBrush}">
+                                                        <Run Text="{loc:Tr Profile_RouteLabel}"/>
+                                                        <Run Text="{Binding Perfil.Rota, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </DockPanel>
+
+                                            <ItemsControl ItemsSource="{Binding Perfil.Avisos}" Margin="0,8,0,0"
+                                                          Visibility="{Binding PerfilTemAvisos, Converter={StaticResource BoolToVis}}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <DockPanel Margin="0,2,0,2">
+                                                            <Path DockPanel.Dock="Left" Data="{StaticResource IconWarning}"
+                                                                  Stroke="#E8B860" StrokeThickness="2" StrokeLineJoin="Round"
+                                                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" Stretch="Uniform"
+                                                                  Width="12" Height="12" VerticalAlignment="Top" Margin="0,2,7,0"/>
+                                                            <TextBlock Text="{Binding}" FontSize="11" TextWrapping="Wrap"
+                                                                       LineHeight="16" Foreground="#F0D0A0"/>
+                                                        </DockPanel>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                            <TextBlock Margin="0,8,0,0" FontSize="11" Cursor="Hand"
+                                                       Foreground="{StaticResource AccentBrush}">
+                                                <TextBlock.InputBindings>
+                                                    <MouseBinding MouseAction="LeftClick" Command="{Binding AlternarPlanoCommand}"/>
+                                                </TextBlock.InputBindings>
+                                                <Run Text="{loc:Tr Profile_PlanToggle}"/>
+                                                <Run Text="{Binding Perfil.Plano.Count, Mode=OneWay, StringFormat=({0})}"/>
+                                            </TextBlock>
+                                            <ItemsControl ItemsSource="{Binding Perfil.Plano}" Margin="2,6,0,0"
+                                                          Visibility="{Binding PlanoAberto, Converter={StaticResource BoolToVis}}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <DockPanel Margin="0,1,0,1">
+                                                            <TextBlock DockPanel.Dock="Left" Text="•" Margin="0,0,7,0"
+                                                                       Foreground="#D0A8F0"/>
+                                                            <TextBlock Text="{Binding}" FontSize="11" TextWrapping="Wrap"
+                                                                       Foreground="{StaticResource TextDimBrush}"/>
+                                                        </DockPanel>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Border>
+
                                     <!-- Os elos, um a um. Todo elo quebrado da o MESMO sintoma de
                                          fora — o jogo abre e nada acontece — entao um unico
                                          ligado/desligado nao diz a ninguem o que fazer. -->
@@ -1102,6 +1172,105 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
+
+                                    <!-- O log da instalacao: cada passo, e cada arquivo que entrou,
+                                         saiu ou foi substituido na pasta, com tamanho e versao. Ao
+                                         vivo durante a instalacao; depois, o ultimo gravado. -->
+                                    <Border Margin="0,10,0,0" Padding="10,8" CornerRadius="9"
+                                            Background="#30000000" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1"
+                                            Visibility="{Binding TemLog, Converter={StaticResource BoolToVis}}">
+                                        <StackPanel>
+                                            <DockPanel>
+                                                <TextBlock DockPanel.Dock="Right" Text="{loc:Tr InstallLog_Copy}" FontSize="11"
+                                                           Margin="12,0,0,0" Cursor="Hand" VerticalAlignment="Center"
+                                                           Foreground="{StaticResource AccentBrush}">
+                                                    <TextBlock.InputBindings>
+                                                        <MouseBinding MouseAction="LeftClick" Command="{Binding CopiarLogCommand}"/>
+                                                    </TextBlock.InputBindings>
+                                                </TextBlock>
+                                                <TextBlock DockPanel.Dock="Right" FontSize="11" Cursor="Hand"
+                                                           VerticalAlignment="Center" Foreground="{StaticResource AccentBrush}">
+                                                    <TextBlock.InputBindings>
+                                                        <MouseBinding MouseAction="LeftClick" Command="{Binding AlternarLogCommand}"/>
+                                                    </TextBlock.InputBindings>
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text" Value="{loc:Tr InstallLog_Show}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding LogAberto}" Value="True">
+                                                                    <Setter Property="Text" Value="{loc:Tr InstallLog_Hide}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding LogTitulo}" FontSize="11.5" FontWeight="SemiBold"
+                                                           VerticalAlignment="Center" Foreground="#D0A8F0"/>
+                                            </DockPanel>
+                                            <ListBox x:Name="InstallLogList" ItemsSource="{Binding LogDeInstalacao}"
+                                                     Margin="0,8,0,0" MaxHeight="260" Background="Transparent"
+                                                     BorderThickness="0" Padding="0"
+                                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                                     VirtualizingPanel.IsVirtualizing="True"
+                                                     Visibility="{Binding LogAberto, Converter={StaticResource BoolToVis}}">
+                                                <ListBox.ItemContainerStyle>
+                                                    <Style TargetType="ListBoxItem">
+                                                        <Setter Property="Padding" Value="0,1"/>
+                                                        <Setter Property="Focusable" Value="False"/>
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate TargetType="ListBoxItem">
+                                                                    <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Style>
+                                                </ListBox.ItemContainerStyle>
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <DockPanel>
+                                                            <TextBlock DockPanel.Dock="Left" Text="{Binding Quando, StringFormat=HH:mm:ss}"
+                                                                       FontFamily="Consolas" FontSize="10.5" Margin="0,0,8,0"
+                                                                       Foreground="{StaticResource TextFaintBrush}"/>
+                                                            <TextBlock DockPanel.Dock="Left" Text="{Binding Marca}" Width="12"
+                                                                       FontFamily="Consolas" FontSize="10.5" FontWeight="Bold">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Foreground" Value="{StaticResource TextDimBrush}"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding Tipo}" Value="Criado">
+                                                                                <Setter Property="Foreground" Value="{StaticResource GreenBrush}"/>
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding Tipo}" Value="Alterado">
+                                                                                <Setter Property="Foreground" Value="{StaticResource CyanBrush}"/>
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding Tipo}" Value="Renomeado">
+                                                                                <Setter Property="Foreground" Value="{StaticResource CyanBrush}"/>
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding Tipo}" Value="Apagado">
+                                                                                <Setter Property="Foreground" Value="{StaticResource OrangeBrush}"/>
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding Tipo}" Value="Aviso">
+                                                                                <Setter Property="Foreground" Value="{StaticResource OrangeBrush}"/>
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding Tipo}" Value="Erro">
+                                                                                <Setter Property="Foreground" Value="{StaticResource RedBrush}"/>
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding Tipo}" Value="Resumo">
+                                                                                <Setter Property="Foreground" Value="#D0A8F0"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                            <TextBlock Text="{Binding Texto}" FontFamily="Consolas" FontSize="10.5"
+                                                                       TextWrapping="Wrap" Foreground="{StaticResource TextBrush}"/>
+                                                        </DockPanel>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                        </StackPanel>
+                                    </Border>
 
                                     <!-- Qual tradutor de D3D9 este jogo usa. So aparece em jogo DX9
                                          de 32 bits, que e onde os dois existem.

@@ -365,6 +365,8 @@ public partial class ReShadeService
         if (ini.Get("OVERLAY", "TutorialProgress", ignoreCase: true) is null)
             ini.Set("OVERLAY", "TutorialProgress", "4");
         ini.Save();
+        // As teclas escolhidas nas Configuracoes valem para toda instalacao, inclusive a do mod HDR.
+        ReShadeHotkeys.Aplicar(ini.Path);
 
         return new DeployResult(true, L.T("Install_ReShade_Done", version, dllName), dllName);
     }

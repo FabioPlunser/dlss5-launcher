@@ -19,6 +19,14 @@ public static class AntiCheatScanner
         ("beclient", "BattlEye"),
         ("vgk.sys", "Vanguard"),
         ("vanguard", "Vanguard"),
+        // O anti-cheat proprio da EA (Javelin): Apex Legends, Battlefield 6, EA FC. A pasta e os
+        // binarios levam o nome "EAAntiCheat" e nao tem nada de EasyAntiCheat no nome — sem esta
+        // linha os dois jogos passavam como jogo livre para injetar DLL.
+        ("eaanticheat", "EA Javelin Anti-Cheat"),
+        ("gameguard", "nProtect GameGuard"),
+        ("xigncode", "XIGNCODE3"),
+        ("anticheatexpert", "Anti-Cheat Expert"),
+        ("randgrid.sys", "Ricochet"),
     };
 
     /// <summary>Name of the anti-cheat found, or null. Scans the install root (the

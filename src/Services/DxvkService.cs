@@ -329,6 +329,30 @@ public static class DxvkService
         Log.Info($"dxvk: d3d9.dll implantado em {targetDir}");
     }
 
+    /// <summary>
+    /// Garante `dxvk.allowFse = False` no dxvk.conf da pasta, sem perder o que mais estiver nele.
+    ///
+    /// E a configuracao que o guia do DLSS5-Feeder pede para jogo de 32 bits traduzido pelo DXVK:
+    /// com tela cheia exclusiva o DXVK recria a swapchain por conta propria, e as texturas
+    /// compartilhadas com o host64 deixam de valer. O arquivo passa pelo BackupService, entao um
+    /// dxvk.conf que a pessoa ja tinha volta ao restaurar.
+    /// </summary>
+    public static void GarantirConf(string targetDir, IProgress<string>? progress = null)
+    {
+        try
+        {
+            var conf = Path.Combine(targetDir, "dxvk.conf");
+            var linhas = File.Exists(conf) ? File.ReadAllLines(conf).ToList() : [];
+            var i = linhas.FindIndex(l => l.TrimStart().StartsWith("dxvk.allowFse", StringComparison.OrdinalIgnoreCase));
+            if (i >= 0 && linhas[i].Replace(" ", "").EndsWith("=False", StringComparison.OrdinalIgnoreCase)) return;
+            if (i >= 0) linhas[i] = "dxvk.allowFse = False";
+            else linhas.Add("dxvk.allowFse = False");
+            BackupService.Escrever(targetDir, conf, string.Join(Environment.NewLine, linhas) + Environment.NewLine, "dxvk");
+            progress?.Report(L.T("Dxvk_ConfFse"));
+        }
+        catch (Exception ex) { Log.Warn($"dxvk.conf em {targetDir}: {ex.Message}"); }
+    }
+
     /// <summary>Tira o DXVK e devolve o que estava no lugar.</summary>
     public static void Remove(string targetDir)
     {

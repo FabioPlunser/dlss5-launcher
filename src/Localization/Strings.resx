@@ -920,7 +920,7 @@ Cada arquivo que o launcher substituiu volta ao build que veio com o jogo, e os 
     <value>Ligue o {0} nas opções gráficas do jogo (modo Qualidade) — o OptiScaler redireciona para o DLSS 5.</value>
   </data>
   <data name="Dlss5_Manual_Overlay" xml:space="preserve">
-    <value>Aperte Home no jogo para abrir o overlay e conferir se o estado diz ATIVO.</value>
+    <value>Aperte {0} no jogo para abrir o overlay e conferir se o estado diz ATIVO.</value>
   </data>
   <data name="Dlss5_Manual_UseDx11Exe" xml:space="preserve">
     <value>Abra o jogo pelo executável DirectX 11 — num Vulkan a ponte não tem o que enganchar.</value>
@@ -942,6 +942,9 @@ Cada arquivo que o launcher substituiu volta ao build que veio com o jogo, e os 
   </data>
   <data name="Dlss5_Step_AddonGeneric" xml:space="preserve">
     <value>Addon genérico, os dois runtimes e a chave de carga antecipada no lugar.</value>
+  </data>
+  <data name="Dlss5_Step_AddonPath" xml:space="preserve">
+    <value>ReShade.ini: AddonPath apontado para a pasta do jogo (camada Vulkan)</value>
   </data>
   <data name="Dlss5_Step_Bridge" xml:space="preserve">
     <value>Ponte DX11 no lugar — o pass de D3D12 agora tem onde rodar.</value>
@@ -1118,6 +1121,9 @@ Cada arquivo que o launcher substituiu volta ao build que veio com o jogo, e os 
   <data name="Dlss_Updating" xml:space="preserve">
     <value>{0}: {1} -&gt; {2}</value>
     <comment>{0} = feature (Super Resolution etc), {1} = versao atual, {2} = versao nova.</comment>
+  </data>
+  <data name="Dxvk_ConfFse" xml:space="preserve">
+    <value>dxvk.conf: dxvk.allowFse = False (exigido pelo auxiliar de 32 bits)</value>
   </data>
   <data name="Dxvk_Deployed" xml:space="preserve">
     <value>DXVK instalado: o jogo passa a renderizar por Vulkan, onde os shaders de motion vector compilam.</value>
@@ -1400,6 +1406,108 @@ Tone mapper e gamma: deixe no padrão do mod, calibrado por jogo.</value>
   <data name="History_Title" xml:space="preserve">
     <value>Histórico do mod</value>
     <comment>Título da janela HistoryWindow. Title Case em en por ser título curto.</comment>
+  </data>
+  <data name="Hotkey_Applied" xml:space="preserve">
+    <value>Teclas do ReShade aplicadas (overlay: {0})</value>
+  </data>
+  <data name="Hotkey_AppliedAll" xml:space="preserve">
+    <value>Teclas gravadas em {0} arquivos ReShade.ini.</value>
+  </data>
+  <data name="Hotkey_ApplyAll" xml:space="preserve">
+    <value>Aplicar aos jogos instalados</value>
+  </data>
+  <data name="Hotkey_ApplyAll_Hint" xml:space="preserve">
+    <value>Atualiza o ReShade.ini de todo jogo já instalado. Feche os jogos antes.</value>
+  </data>
+  <data name="Hotkey_Capture_Tooltip" xml:space="preserve">
+    <value>Clique e aperte a tecla nova (com Ctrl/Shift/Alt, se quiser).</value>
+  </data>
+  <data name="Hotkey_Effects" xml:space="preserve">
+    <value>Ligar/desligar os efeitos</value>
+  </data>
+  <data name="Hotkey_Hint" xml:space="preserve">
+    <value>Gravadas no ReShade.ini a cada instalação. Clique numa tecla para trocar; Backspace desliga, Esc cancela.</value>
+  </data>
+  <data name="Hotkey_NextPreset" xml:space="preserve">
+    <value>Próximo preset</value>
+  </data>
+  <data name="Hotkey_None" xml:space="preserve">
+    <value>nenhuma</value>
+  </data>
+  <data name="Hotkey_NothingToApply" xml:space="preserve">
+    <value>Nenhuma tecla foi trocada: os jogos já usam o padrão do ReShade.</value>
+  </data>
+  <data name="Hotkey_Overlay" xml:space="preserve">
+    <value>Abrir o overlay</value>
+  </data>
+  <data name="Hotkey_PerformanceMode" xml:space="preserve">
+    <value>Modo de desempenho</value>
+  </data>
+  <data name="Hotkey_PressKey" xml:space="preserve">
+    <value>Aperte uma tecla…</value>
+  </data>
+  <data name="Hotkey_PreviousPreset" xml:space="preserve">
+    <value>Preset anterior</value>
+  </data>
+  <data name="Hotkey_Reload" xml:space="preserve">
+    <value>Recarregar efeitos</value>
+  </data>
+  <data name="Hotkey_Reset" xml:space="preserve">
+    <value>padrão</value>
+  </data>
+  <data name="Hotkey_Reset_Tooltip" xml:space="preserve">
+    <value>Volta ao padrão do ReShade</value>
+  </data>
+  <data name="Hotkey_Screenshot" xml:space="preserve">
+    <value>Captura de tela</value>
+  </data>
+  <data name="InstallLog_Copied" xml:space="preserve">
+    <value>Log da instalação copiado.</value>
+  </data>
+  <data name="InstallLog_Copy" xml:space="preserve">
+    <value>Copiar</value>
+  </data>
+  <data name="InstallLog_Detected" xml:space="preserve">
+    <value>Detectado: {0}</value>
+  </data>
+  <data name="InstallLog_Done" xml:space="preserve">
+    <value>Concluído: {0} arquivos novos, {1} substituídos, {2} removidos.</value>
+  </data>
+  <data name="InstallLog_Folder" xml:space="preserve">
+    <value>Pasta: {0}</value>
+  </data>
+  <data name="InstallLog_Hide" xml:space="preserve">
+    <value>Ocultar</value>
+  </data>
+  <data name="InstallLog_Interrupted" xml:space="preserve">
+    <value>Interrompido: {0} arquivos novos, {1} substituídos, {2} removidos até aqui.</value>
+  </data>
+  <data name="InstallLog_Next" xml:space="preserve">
+    <value>Próximo passo: {0}</value>
+  </data>
+  <data name="InstallLog_RenamedFrom" xml:space="preserve">
+    <value>(era {0})</value>
+  </data>
+  <data name="InstallLog_Replaced" xml:space="preserve">
+    <value>(substituiu o original)</value>
+  </data>
+  <data name="InstallLog_Route" xml:space="preserve">
+    <value>Rota: {0}</value>
+  </data>
+  <data name="InstallLog_Show" xml:space="preserve">
+    <value>Mostrar</value>
+  </data>
+  <data name="InstallLog_Start" xml:space="preserve">
+    <value>Instalando DLSS 5 em {0}</value>
+  </data>
+  <data name="InstallLog_TitleLast" xml:space="preserve">
+    <value>Log da última instalação · {0}</value>
+  </data>
+  <data name="InstallLog_TitleLive" xml:space="preserve">
+    <value>Instalando…</value>
+  </data>
+  <data name="InstallLog_WatcherError" xml:space="preserve">
+    <value>observador de arquivos: {0}</value>
   </data>
   <data name="Install_Advice_Deprecated" xml:space="preserve">
     <value>Mod descontinuado. Pode não funcionar com as versões atuais do jogo e do ReShade.</value>
@@ -1919,6 +2027,9 @@ Só o mod: mantém o ReShade instalado.</value>
     <value>Alterações salvas: {0}. Arquivo: {1}. Com o jogo aberto, mova o slider Preset para 2 e volte para 1 no overlay (Home) para aplicar sem reiniciar.</value>
     <comment>{0} = quantidade alterada, {1} = caminho do ini. Numero depois do dois-pontos para nao quebrar no singular. 'Preset' e nome do slider no mod.</comment>
   </data>
+  <data name="Main_Status_FromCache" xml:space="preserve">
+    <value>{0} jogos (da última varredura)</value>
+  </data>
   <data name="Main_Status_GamesFound" xml:space="preserve">
     <value>Jogos encontrados: {0}. Com mod RenoDX: {1}.</value>
     <comment>Forma de rotulo (numero depois do dois-pontos) para funcionar em singular e plural sem chave extra.</comment>
@@ -1929,6 +2040,9 @@ Só o mod: mantém o ReShade instalado.</value>
   <data name="Main_Status_Ready" xml:space="preserve">
     <value>Pronto.</value>
     <comment>Status inicial da barra de status.</comment>
+  </data>
+  <data name="Main_Status_Rescanning" xml:space="preserve">
+    <value>{0} jogos · procurando mudanças nas lojas e nos discos…</value>
   </data>
   <data name="Main_Status_ScanningGames" xml:space="preserve">
     <value>Procurando jogos instalados...</value>
@@ -2231,9 +2345,66 @@ Suas configurações (nits, tone mapper) são preservadas: só o arquivo do mod 
   <data name="OptiScaler_NotInLibrary" xml:space="preserve">
     <value>O OptiScaler ainda não está na biblioteca.</value>
   </data>
+  <data name="Plan_Addon" xml:space="preserve">
+    <value>Add-on de Neural Rendering ({0})</value>
+  </data>
+  <data name="Plan_Bridge" xml:space="preserve">
+    <value>Add-on da Ponte DX11 (dlss5-dx11-bridge.addon64)</value>
+  </data>
+  <data name="Plan_DgVoodoo" xml:space="preserve">
+    <value>dgVoodoo2 D3D9.dll + dgVoodoo.conf: Direct3D 9 → Direct3D 11</value>
+  </data>
+  <data name="Plan_Dxvk" xml:space="preserve">
+    <value>DXVK d3d9.dll: Direct3D 9 → Vulkan, mais dxvk.conf com dxvk.allowFse = False</value>
+  </data>
+  <data name="Plan_DxvkD3d10" xml:space="preserve">
+    <value>DXVK {0} (d3d10.dll, d3d10_1.dll, d3d10core.dll, d3d11.dll, dxgi.dll): Direct3D 10 → Vulkan</value>
+  </data>
+  <data name="Plan_Feeder" xml:space="preserve">
+    <value>DLSS5-Feeder: {0} e reshade-shaders\Shaders\{1} (DLSS5_MV_PROVIDER=3)</value>
+  </data>
+  <data name="Plan_Host64" xml:space="preserve">
+    <value>Processo auxiliar de 64 bits em {0}\ ({1}) com ReShade, add-on e runtimes próprios</value>
+  </data>
+  <data name="Plan_Hotkeys" xml:space="preserve">
+    <value>Tecla do overlay: {0} (mude nas Configurações)</value>
+  </data>
+  <data name="Plan_Ini" xml:space="preserve">
+    <value>ReShade.ini: add-on carregado cedo (LoadFromDllMain) e pass neural ligado</value>
+  </data>
+  <data name="Plan_Lumenite" xml:space="preserve">
+    <value>Motion vectors do LumeniteFX Kernel (lumenite_*.fx, includes, textura de blue noise), ativado acima do DLSS 5 Feed</value>
+  </data>
+  <data name="Plan_OptiScaler" xml:space="preserve">
+    <value>OptiScaler, redirecionando {0} para o DLSS</value>
+  </data>
+  <data name="Plan_ReShadeKeep" xml:space="preserve">
+    <value>ReShade já presente como {0}: mantido</value>
+  </data>
+  <data name="Plan_ReShadeLayer" xml:space="preserve">
+    <value>ReShade com suporte a add-ons como camada Vulkan (registrada uma vez, para a máquina), AddonPath=.\ no ReShade.ini</value>
+  </data>
+  <data name="Plan_ReShadeProxy" xml:space="preserve">
+    <value>ReShade com suporte a add-ons como {0}</value>
+  </data>
+  <data name="Plan_ReShadeProxyAuto" xml:space="preserve">
+    <value>a DLL proxy que o executável carrega (dxgi.dll, d3d11.dll…)</value>
+  </data>
+  <data name="Plan_Runtime" xml:space="preserve">
+    <value>Runtimes de DLSS {0} e {1} ao lado do executável</value>
+  </data>
+  <data name="Profile_Activate" xml:space="preserve">
+    <value>Ativar DLSS 5</value>
+  </data>
   <data name="Profile_ApplyOnInstall" xml:space="preserve">
     <value>Aplicar automaticamente ao instalar um mod</value>
     <comment>CheckBox. Cortado 'este perfil' — a janela inteira e o perfil. Sentence case.</comment>
+  </data>
+  <data name="Profile_Bits" xml:space="preserve">
+    <value>{0} bits</value>
+  </data>
+  <data name="Profile_Detected" xml:space="preserve">
+    <value>DETECTADO</value>
   </data>
   <data name="Profile_GameNits_Hint" xml:space="preserve">
     <value>Padrão 203.</value>
@@ -2247,6 +2418,18 @@ Suas configurações (nits, tone mapper) são preservadas: só o arquivo do mod 
     <value>Perfil HDR do monitor</value>
     <comment>H1 do cabecalho. Cortado o 'seu' de 'do seu monitor' — nao carrega informacao, o titulo da janela ja diz de quem e.</comment>
   </data>
+  <data name="Profile_NativeDlss" xml:space="preserve">
+    <value>tem DLSS próprio</value>
+  </data>
+  <data name="Profile_NativeDlssVersion" xml:space="preserve">
+    <value>DLSS próprio {0}</value>
+  </data>
+  <data name="Profile_NoDlss" xml:space="preserve">
+    <value>sem DLSS</value>
+  </data>
+  <data name="Profile_OtherUpscaler" xml:space="preserve">
+    <value>sem DLSS, tem {0}</value>
+  </data>
   <data name="Profile_PeakNits_Hint" xml:space="preserve">
     <value>Meça no app Calibração de HDR do Windows.</value>
     <comment>Reescrito para dizer O QUE fazer (medir), nao so o que nao fazer. 'Calibração de HDR do Windows' / 'Windows HDR Calibration' sao os nomes reais do app da Microsoft em cada idioma — nao inventar traducao.</comment>
@@ -2255,6 +2438,12 @@ Suas configurações (nits, tone mapper) são preservadas: só o arquivo do mod 
     <value>Brilho máximo do monitor</value>
     <comment>H2. Title Case no en por ser titulo curto.</comment>
   </data>
+  <data name="Profile_PlanToggle" xml:space="preserve">
+    <value>O que será instalado</value>
+  </data>
+  <data name="Profile_RouteLabel" xml:space="preserve">
+    <value>Rota:</value>
+  </data>
   <data name="Profile_Title" xml:space="preserve">
     <value>Meu monitor</value>
     <comment>Window.Title. WindowStyle=None, entao so aparece na barra de tarefas e no Alt-Tab. Espelha o rotulo do botao que abre a janela em MainWindow.xaml.</comment>
@@ -2262,6 +2451,42 @@ Suas configurações (nits, tone mapper) são preservadas: só o arquivo do mod 
   <data name="Profile_UiNits_Label" xml:space="preserve">
     <value>Brilho da interface (HUD)</value>
     <comment>H2.</comment>
+  </data>
+  <data name="Profile_Warn_AntiCheat" xml:space="preserve">
+    <value>{0} encontrado: instalar pode banir a conta. Só para jogar offline.</value>
+  </data>
+  <data name="Profile_Warn_Dlss1" xml:space="preserve">
+    <value>O jogo traz DLSS 1.0. Ativar substitui o arquivo, e o DLSS do próprio jogo precisa ser desligado nas opções dele.</value>
+  </data>
+  <data name="Profile_Warn_DriverAddon" xml:space="preserve">
+    <value>Driver {0}: o add-on neural embutido (build 4.70) tem falha relatada a partir do driver 616.64. Se o jogo fechar, importe o renodx-dlss5 v6.1+ nas Configurações ou use o driver 616.56.</value>
+  </data>
+  <data name="Profile_Warn_FeederDlaa" xml:space="preserve">
+    <value>Jogo sem DLSS: o pass roda em DLAA na resolução cheia. A imagem melhora, o FPS não. Desligue MSAA/SSAA no jogo.</value>
+  </data>
+  <data name="Profile_Warn_FeederVulkanDlss" xml:space="preserve">
+    <value>O DLSS do próprio jogo roda em Vulkan aqui, e o add-on neural não o engancha; o Feeder conduz o pass em DLAA na resolução cheia. A imagem melhora, o FPS não.</value>
+  </data>
+  <data name="Profile_Warn_SmoothMotion" xml:space="preserve">
+    <value>Rota Vulkan: desligue o NVIDIA Smooth Motion neste jogo, senão os quadros gerados não são processados e a imagem pisca.</value>
+  </data>
+  <data name="Route_Bridge" xml:space="preserve">
+    <value>Ponte DX11 (o DLSS do próprio jogo roda num device D3D12 à parte)</value>
+  </data>
+  <data name="Route_Direct" xml:space="preserve">
+    <value>direta: o add-on engancha o DLSS do próprio jogo</value>
+  </data>
+  <data name="Route_Feeder" xml:space="preserve">
+    <value>Feeder (motion vectors e depth fabricados por um shader)</value>
+  </data>
+  <data name="Route_MultiApi" xml:space="preserve">
+    <value>um executável por API: Ponte e Feeder instalados juntos</value>
+  </data>
+  <data name="Route_None" xml:space="preserve">
+    <value>nenhuma rota para este executável</value>
+  </data>
+  <data name="Route_OptiScaler" xml:space="preserve">
+    <value>OptiScaler redireciona o {0} do jogo para o DLSS</value>
   </data>
   <data name="Settings_Addon_Current" xml:space="preserve">
     <value>Os builds novos circulam pelo Discord com nomes que mudam, então aponte para o arquivo que você baixou — ele vai para todos os jogos de uma vez.</value>
@@ -2444,6 +2669,9 @@ Suas configurações (nits, tone mapper) são preservadas: só o arquivo do mod 
   <data name="Settings_Section_Dlss5" xml:space="preserve">
     <value>DLSS 5</value>
   </data>
+  <data name="Settings_Section_Hotkeys" xml:space="preserve">
+    <value>TECLAS DO RESHADE</value>
+  </data>
   <data name="Settings_Section_Other" xml:space="preserve">
     <value>Outros</value>
     <comment>SettingVm.SectionName: cabecalho de grupo quando o manifesto nao traz Section.</comment>
@@ -2477,6 +2705,27 @@ Suas configurações (nits, tone mapper) são preservadas: só o arquivo do mod 
   </data>
   <data name="Settings_Vignette_Label" xml:space="preserve">
     <value>Vinheta</value>
+  </data>
+  <data name="Snapshot_Confirm_Body" xml:space="preserve">
+    <value>Isto devolve {0} ao que era antes de o launcher mexer nela pela primeira vez.</value>
+  </data>
+  <data name="Snapshot_Confirm_Kept" xml:space="preserve">
+    <value>{0} arquivos mudaram sem passar pelo launcher (atualização do jogo?) e ficam como estão: {1}</value>
+  </data>
+  <data name="Snapshot_Confirm_NotClean" xml:space="preserve">
+    <value>A fotografia foi tirada depois de uma versão antiga do launcher já ter instalado aqui; essas mudanças antigas são desfeitas pelo manifesto de backup.</value>
+  </data>
+  <data name="Snapshot_Confirm_Plan" xml:space="preserve">
+    <value>Pela fotografia de {0}: {1} arquivos voltam à versão original e {2} arquivos que o launcher acrescentou são apagados.</value>
+  </data>
+  <data name="Snapshot_KeptStatus" xml:space="preserve">
+    <value>{0} arquivos alterados pelo próprio jogo foram mantidos.</value>
+  </data>
+  <data name="Snapshot_Taken" xml:space="preserve">
+    <value>Fotografia guardada: {0} arquivos listados, {1} originais copiados.</value>
+  </data>
+  <data name="Snapshot_Taking" xml:space="preserve">
+    <value>Fotografando a pasta do jogo antes da primeira mudança…</value>
   </data>
   <data name="Sobra_Apagada" xml:space="preserve">
     <value>{0} apagada — {1} MB liberados.</value>

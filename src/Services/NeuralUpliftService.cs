@@ -1023,6 +1023,22 @@ public static class NeuralUpliftService
         "D5ADF82EB44B065F4C590AC91FE824BAB07AFEA0EB9F994BDE936710C8593952";
     private const long EmbeddedAddonLength = 1732608;
 
+    /// <summary>A biblioteca ainda usa o addon embutido (4.70), e nao um que a pessoa trouxe?</summary>
+    public static bool AddonDaBibliotecaEhOEmbutido
+    {
+        get
+        {
+            try
+            {
+                return File.Exists(LibraryAddon)
+                       && new FileInfo(LibraryAddon).Length == EmbeddedAddonLength
+                       && File.Exists(AddonStamp)
+                       && File.ReadAllText(AddonStamp).Trim().Equals(EmbeddedAddonSha256, StringComparison.OrdinalIgnoreCase);
+            }
+            catch { return false; }
+        }
+    }
+
     /// <summary>
     /// Put the launcher's own copy of the generic addon into the library.
     ///
@@ -1287,6 +1303,28 @@ public static class NeuralUpliftService
         catch (Exception ex) { Log.Warn($"neural host probe: {ex.Message}"); }
 
         return new HostCapability(name, branch, IsBlackwell(name), File.Exists(LibraryRuntime));
+    }
+
+    /// <summary>A versao do driver NVIDIA como a pessoa a conhece (616, 92), ou (0, 0).</summary>
+    public static (int Branch, int Minor) ProbeDriverVersion()
+    {
+        try
+        {
+            const string display = @"SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}";
+            using var root = Registry.LocalMachine.OpenSubKey(display);
+            foreach (var sub in root?.GetSubKeyNames() ?? [])
+            {
+                if (sub.Length != 4 || !sub.All(char.IsDigit)) continue;
+                using var key = root!.OpenSubKey(sub);
+                if (key?.GetValue("DriverDesc") is not string desc
+                    || !desc.Contains("NVIDIA", StringComparison.OrdinalIgnoreCase)) continue;
+                var digits = new string((key.GetValue("DriverVersion") as string ?? "").Where(char.IsDigit).ToArray());
+                if (digits.Length < 5) return (0, 0);
+                return (int.Parse(digits[^5..][..3]), int.Parse(digits[^2..]));
+            }
+        }
+        catch (Exception ex) { Log.Warn($"driver version: {ex.Message}"); }
+        return (0, 0);
     }
 
     /// <summary>

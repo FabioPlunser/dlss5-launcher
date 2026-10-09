@@ -515,13 +515,21 @@ public static class Cli
         {
             var (_, state) = StateOf(ctx, g);
             var pasta = state?.TargetDir ?? g.InstallDir;
-            if (pasta is null || !BackupService.TemBackup(pasta)) continue;
+            var temManifesto = pasta is not null && BackupService.TemBackup(pasta);
+            var temFoto = SnapshotService.Tem(g.InstallDir);
+            if (!temManifesto && !temFoto) continue;
             mexidos++;
             Console.WriteLine(g.Name);
-            var r = BackupService.Restaurar(pasta);
-            Console.WriteLine("  " + L.T("Backup_Restaurado", r.Devolvidos, r.Apagados));
-            if (r.Faltando.Count > 0) Console.WriteLine("  " + L.T("Backup_Faltando", r.Faltando.Count));
+            // A fotografia primeiro, o manifesto depois — a mesma ordem do botao (ver
+            // SnapshotService.Restaurar).
+            var rs = temFoto ? SnapshotService.Restaurar(g.InstallDir) : null;
+            var r = temManifesto ? BackupService.Restaurar(pasta!) : new BackupService.Resultado(0, 0, [], []);
+            if (rs is { Falhas.Count: 0 }) SnapshotService.Descartar(g.InstallDir);
+            Console.WriteLine("  " + L.T("Backup_Restaurado", r.Devolvidos + (rs?.Devolvidos ?? 0), r.Apagados + (rs?.Apagados ?? 0)));
+            var faltando = r.Faltando.Count + (rs?.Falhas.Count ?? 0);
+            if (faltando > 0) Console.WriteLine("  " + L.T("Backup_Faltando", faltando));
             if (r.Divergentes.Count > 0) Console.WriteLine("  " + L.T("Backup_Divergentes", r.Divergentes.Count));
+            if (rs is { Mantidos.Count: > 0 }) Console.WriteLine("  " + L.T("Snapshot_KeptStatus", rs.Mantidos.Count));
         }
         if (mexidos == 0) Console.WriteLine(L.T("Backup_SemBackup"));
         return 0;

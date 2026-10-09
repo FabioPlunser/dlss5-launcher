@@ -111,6 +111,9 @@ public class MainViewModel : ObservableObject
         MfgMultiplierCommand = new RelayCommand<string>(EscolherMfgMultiplicador, _ => !Busy);
 
         RestoreAllDlssCommand = new AsyncRelayCommand(RestoreAllDlssAsync, () => !Busy);
+        AlternarLogCommand = new RelayCommand(() => LogAberto = !LogAberto);
+        AlternarPlanoCommand = new RelayCommand(() => PlanoAberto = !PlanoAberto);
+        CopiarLogCommand = new RelayCommand(CopiarLog, () => LogDeInstalacao.Count > 0);
         LaunchGameCommand = new RelayCommand(LaunchGame, () => Selected != null);
         OpenMaintainerCommand = new RelayCommand(OpenMaintainer,
             () => AvatarService.ProfileUrl(Selected?.Mod) != null);
@@ -1091,7 +1094,7 @@ public class MainViewModel : ObservableObject
             if (item == _detailItem) await RefreshFolderAsync(_detailToken);
         }
         catch (Exception ex) { DetailStatus = ex.Message; }
-        finally { ActionBusy = false; RaiseCommands(); }
+        finally { FimDoLogAoVivo(); ActionBusy = false; RaiseCommands(); }
     }
 
     private void EscolherMfgMultiplicador(string qual)
@@ -1151,7 +1154,8 @@ public class MainViewModel : ObservableObject
     public AsyncRelayCommand RestaurarOriginalCommand { get; }
 
     /// <summary>Ha um manifesto de backup nesta pasta — ou seja, ha o que devolver.</summary>
-    public bool TemBackup => BackupService.TemBackup(PastaDoSelecionado);
+    public bool TemBackup => BackupService.TemBackup(PastaDoSelecionado)
+                             || (Selected is { EhSobra: false } s && SnapshotService.Tem(s.Game.InstallDir));
 
     /// <summary>Quantos arquivos originais estao guardados. E o numero que o botao promete
     /// devolver, e dizer "3 arquivos" e mais honesto do que dizer "tudo".</summary>
@@ -1285,6 +1289,113 @@ public class MainViewModel : ObservableObject
             })
             .ToArray();
 
+    // ---------- perfil do jogo e log de instalacao ----------
+
+    private GameProfileService.Perfil? _perfil;
+
+    /// <summary>Que tipo de jogo e este e o que o interruptor de DLSS 5 vai instalar. Lido em
+    /// segundo plano quando o cartao abre; null enquanto nao chega.</summary>
+    public GameProfileService.Perfil? Perfil
+    {
+        get => _perfil;
+        private set
+        {
+            if (!Set(ref _perfil, value)) return;
+            OnPropertyChanged(nameof(TemPerfil));
+            OnPropertyChanged(nameof(PerfilTemAvisos));
+        }
+    }
+
+    public bool TemPerfil => _perfil is not null;
+    public bool PerfilTemAvisos => _perfil?.Avisos.Count > 0;
+
+    private bool _planoAberto;
+    /// <summary>A lista "o que sera instalado" esta expandida?</summary>
+    public bool PlanoAberto { get => _planoAberto; set => Set(ref _planoAberto, value); }
+    public RelayCommand AlternarPlanoCommand { get; }
+
+    /// <summary>As linhas do log da instalacao: ao vivo durante uma, ou a ultima gravada.</summary>
+    public ObservableCollection<InstallLog.Linha> LogDeInstalacao { get; } = new();
+
+    private bool _logAberto;
+    public bool LogAberto { get => _logAberto; set => Set(ref _logAberto, value); }
+
+    private bool _logAoVivo;
+    /// <summary>Uma instalacao esta escrevendo no log agora.</summary>
+    public bool LogAoVivo
+    {
+        get => _logAoVivo;
+        private set { if (Set(ref _logAoVivo, value)) OnPropertyChanged(nameof(LogTitulo)); }
+    }
+
+    public bool TemLog => LogDeInstalacao.Count > 0;
+
+    public string LogTitulo => LogAoVivo
+        ? L.T("InstallLog_TitleLive")
+        : L.T("InstallLog_TitleLast", LogDeInstalacao.FirstOrDefault()?.Quando.ToString("g") ?? "");
+
+    public RelayCommand AlternarLogCommand { get; }
+    public RelayCommand CopiarLogCommand { get; }
+
+    private GameItemVm? _logDoItem;
+
+    /// <summary>Comeca um log novo, aberto, ao vivo, preso ao jogo do cartao.</summary>
+    private IProgress<InstallLog.Linha> NovoLogAoVivo(GameItemVm item)
+    {
+        _logDoItem = item;
+        LogDeInstalacao.Clear();
+        LogAberto = true;
+        LogAoVivo = true;
+        OnPropertyChanged(nameof(TemLog));
+        return new Progress<InstallLog.Linha>(l =>
+        {
+            // Trocar de jogo no meio da instalacao nao pode misturar o log de um no cartao do outro.
+            if (_logDoItem != _detailItem) return;
+            LogDeInstalacao.Add(l);
+            OnPropertyChanged(nameof(TemLog));
+            CopiarLogCommand.RaiseCanExecuteChanged();
+        });
+    }
+
+    private void FimDoLogAoVivo()
+    {
+        LogAoVivo = false;
+        OnPropertyChanged(nameof(LogTitulo));
+    }
+
+    private void CopiarLog()
+    {
+        try
+        {
+            Clipboard.SetText(string.Join(Environment.NewLine, LogDeInstalacao.Select(l => l.ToString())));
+            DetailStatus = L.T("InstallLog_Copied");
+        }
+        catch (Exception ex) { Log.Warn($"copiar log: {ex.Message}"); }
+    }
+
+    /// <summary>Le o perfil do jogo e o ultimo log gravado. Disco, em segundo plano.</summary>
+    private async Task CarregarPerfilEUltimoLogAsync(int token)
+    {
+        var item = _detailItem;
+        if (item is null || item.EhSobra) return;
+        var alvo = item.TargetDir ?? item.Game.InstallDir;
+        var exe = item.ChosenExe;
+        var dgvoodoo = Config.D3d9Translator.TryGetValue(item.Key, out var t) && t == "dgvoodoo";
+        var (perfil, linhas) = await Task.Run(() =>
+            (GameProfileService.Detectar(item.Game, alvo, exe, dgvoodoo), GameDatabase.LerUltimoLog(item.Game.InstallDir)));
+        if (token != _detailToken) return;
+        Perfil = perfil;
+        if (LogAoVivo) return;
+        LogDeInstalacao.Clear();
+        foreach (var l in linhas)
+            LogDeInstalacao.Add(new InstallLog.Linha(l.Quando,
+                Enum.TryParse<InstallLog.Tipo>(l.Tipo, out var tipo) ? tipo : InstallLog.Tipo.Etapa, l.Texto));
+        LogAberto = false;
+        OnPropertyChanged(nameof(TemLog));
+        OnPropertyChanged(nameof(LogTitulo));
+        CopiarLogCommand.RaiseCanExecuteChanged();
+    }
+
     // ---------- load pipeline ----------
 
     public async Task LoadAsync(bool forceRefresh = false)
@@ -1306,7 +1417,22 @@ public class MainViewModel : ObservableObject
             await rhiTask;
             await indexTask;
 
-            StatusText = L.T("Main_Status_ScanningGames");
+            // A ultima lista conhecida aparece JA, antes da varredura. Varrer oito lojas e os
+            // discos leva de segundos a minutos; a grade vazia nesse meio tempo nao serve a
+            // ninguem, e na imensa maioria das aberturas a lista e a mesma da vez anterior.
+            var doCache = new List<GameInfo>();
+            if (Games.Count == 0)
+            {
+                doCache = await Task.Run(GameDatabase.LerJogos);
+                if (doCache.Count > 0)
+                {
+                    foreach (var g in doCache)
+                        Games.Add(new GameItemVm(g, MatchService.FindMatch(g, _catalogEntries)));
+                    StatusText = L.T("Main_Status_FromCache", doCache.Count);
+                }
+            }
+
+            StatusText = doCache.Count > 0 ? L.T("Main_Status_Rescanning", doCache.Count) : L.T("Main_Status_ScanningGames");
             // A varredura de pastas soltas nao exige mais que o nome conste no catalogo: repack e
             // jogo copiado a mao tem pasta com nome que nenhum catalogo tem. O catalogo vai junto
             // so para dar o nome bonito a quem ele reconhecer (ver StoreScanners.ScanGameFolders).
@@ -1343,15 +1469,23 @@ public class MainViewModel : ObservableObject
             }
             catch (Exception ex) { Log.Warn($"varredura de sobras: {ex.Message}"); }
 
-            // O modal, se estiver aberto, fecha ANTES de a lista ser trocada: esvaziar a grade
-            // deixa a ListBox sem selecao, Selected vira null e o modal continuava aberto, em
-            // branco, apontando para um jogo que nao existe mais.
-            IsDialogOpen = false;
-            Games.Clear();
-            foreach (var g in games)
+            var gravar = games.ToList();
+            _ = Task.Run(() => GameDatabase.GravarJogos(gravar));
+
+            // A varredura achou a mesma lista que o cache ja mostrou: nada a trocar, e a grade
+            // (com a selecao e o modal aberto) fica como esta.
+            if (doCache.Count == 0 || !GameDatabase.MesmaLista(doCache, games))
             {
-                var match = MatchService.FindMatch(g, _catalogEntries);
-                Games.Add(new GameItemVm(g, match));
+                // O modal, se estiver aberto, fecha ANTES de a lista ser trocada: esvaziar a grade
+                // deixa a ListBox sem selecao, Selected vira null e o modal continuava aberto, em
+                // branco, apontando para um jogo que nao existe mais.
+                IsDialogOpen = false;
+                Games.Clear();
+                foreach (var g in games)
+                {
+                    var match = MatchService.FindMatch(g, _catalogEntries);
+                    Games.Add(new GameItemVm(g, match));
+                }
             }
             var withMod = Games.Count(g => g.HasMod);
             StatusText = L.T("Main_Status_GamesFound", Games.Count, withMod);
@@ -1773,6 +1907,14 @@ public class MainViewModel : ObservableObject
         MostraAvisoSemDlss = false;
         MostraTradutorD3d9 = false;
         MostraTradutorD3d10 = false;
+        Perfil = null;
+        PlanoAberto = false;
+        if (!LogAoVivo)
+        {
+            LogDeInstalacao.Clear();
+            LogAberto = false;
+            OnPropertyChanged(nameof(TemLog));
+        }
 
         MfgBlocker = null;
         MfgLastRun = "";
@@ -1799,6 +1941,7 @@ public class MainViewModel : ObservableObject
         // Tudo lido: o painel entra inteiro (ver DetalhePronto).
         DetalhePronto = true;
         RaiseCommands();
+        _ = SemQuebrar(() => CarregarPerfilEUltimoLogAsync(token), "perfil do jogo");
 
         // Envolvida: solta, uma falha de rede viraria excecao nao observada; nao tem try/catch
         // proprio e faz HTTP.
@@ -1864,7 +2007,7 @@ public class MainViewModel : ObservableObject
             }
         }
         catch (Exception ex) { DetailStatus = ex.Message; }
-        finally { ActionBusy = false; RaiseCommands(); }
+        finally { FimDoLogAoVivo(); ActionBusy = false; RaiseCommands(); }
     }
 
     /// <summary>
@@ -2276,7 +2419,7 @@ public class MainViewModel : ObservableObject
             if (item == _detailItem) await LoadDetailSafeAsync();
         }
         catch (Exception ex) { DetailStatus = ex.Message; }
-        finally { ActionBusy = false; RaiseCommands(); }
+        finally { FimDoLogAoVivo(); ActionBusy = false; RaiseCommands(); }
     }
 
     /// <summary>Ver <see cref="ModCommand"/>: tres estados por baixo, um interruptor por cima.</summary>
@@ -2335,21 +2478,51 @@ public class MainViewModel : ObservableObject
     /// </summary>
     private async Task RestaurarOriginalAsync()
     {
-        if (PastaDoSelecionado is not { } pasta || !BackupService.TemBackup(pasta)) return;
-        var quantos = OriginaisGuardados;
+        if (PastaDoSelecionado is not { } pasta || Selected is not { } selecionado) return;
+        var raiz = selecionado.Game.InstallDir;
+        var temManifesto = BackupService.TemBackup(pasta);
+        var foto = SnapshotService.Ler(raiz);
+        if (!temManifesto && foto is null) return;
+
+        // O plano da fotografia ANTES da pergunta: "vou devolver 4 e apagar 37" e o que a pessoa
+        // precisa ler para decidir, e nao um "tem certeza?" generico.
+        ActionBusy = true;
+        SnapshotService.Plano? plano;
+        try { plano = foto is null ? null : await Task.Run(() => SnapshotService.Planejar(raiz)); }
+        finally { ActionBusy = false; }
+
+        var corpo = temManifesto ? L.T("Backup_Confirm_Body", pasta, OriginaisGuardados) : L.T("Snapshot_Confirm_Body", raiz);
+        if (foto is not null && plano is not null)
+        {
+            corpo += "\n\n" + L.T("Snapshot_Confirm_Plan", foto.Criado.ToString("g"),
+                                    plano.Devolver.Count, plano.Apagar.Count);
+            if (plano.Mantidos.Count > 0)
+                corpo += "\n" + L.T("Snapshot_Confirm_Kept", plano.Mantidos.Count,
+                                     string.Join(", ", plano.Mantidos.Take(4)));
+            if (!foto.Limpo) corpo += "\n" + L.T("Snapshot_Confirm_NotClean");
+        }
         if (!DialogWindow.Confirm(
                 Application.Current?.MainWindow,
-                L.T("Backup_Confirm_Title"),
-                L.T("Backup_Confirm_Body", pasta, quantos),
+                L.T("Backup_Confirm_Title"), corpo,
                 L.T("Backup_Restaurar"), DialogKind.Danger)) return;
 
         ActionBusy = true;
         try
         {
-            var r = await Task.Run(() => BackupService.Restaurar(pasta));
-            StatusText = L.T("Backup_Restaurado", r.Devolvidos, r.Apagados)
+            // A fotografia primeiro, o manifesto depois (ver SnapshotService.Restaurar).
+            var rs = foto is null ? null : await Task.Run(() => SnapshotService.Restaurar(raiz));
+            var r = temManifesto
+                ? await Task.Run(() => BackupService.Restaurar(pasta))
+                : new BackupService.Resultado(0, 0, [], []);
+            if (rs is { Falhas.Count: 0 }) SnapshotService.Descartar(raiz);
+
+            var devolvidos = r.Devolvidos + (rs?.Devolvidos ?? 0);
+            var apagados = r.Apagados + (rs?.Apagados ?? 0);
+            var falhas = r.Faltando.Count + (rs?.Falhas.Count ?? 0);
+            StatusText = L.T("Backup_Restaurado", devolvidos, apagados)
                 + (r.Divergentes.Count > 0 ? "  " + L.T("Backup_Divergentes", r.Divergentes.Count) : "")
-                + (r.Faltando.Count > 0 ? "  " + L.T("Backup_Faltando", r.Faltando.Count) : "");
+                + (falhas > 0 ? "  " + L.T("Backup_Faltando", falhas) : "")
+                + (rs is { Mantidos.Count: > 0 } ? "  " + L.T("Snapshot_KeptStatus", rs.Mantidos.Count) : "");
             // A tela tem de reler a PASTA, e nao so a lista.
             //
             // Fechar o painel e recarregar a biblioteca nao apagava o estado que o cartao ja
@@ -2422,13 +2595,15 @@ public class MainViewModel : ObservableObject
                 _dlssIndex, _reshade, _rhi, new Progress<string>(s => DetailStatus = s),
                 default,
                 preferirDxvk: escolha != "dgvoodoo",
-                forcarDgVoodoo: escolha == "dgvoodoo");
+                forcarDgVoodoo: escolha == "dgvoodoo",
+                log: NovoLogAoVivo(item));
+            FimDoLogAoVivo();
             DetailStatus = r.Ok ? L.T("Main_D3d9Translator_Reinstalled")
                                 : r.Blocker ?? string.Join("; ", r.Steps);
             if (item == _detailItem) await RefreshNeuralAndSettingsAsync(_detailToken, pastaFoiEscrita: true);
         }
         catch (Exception ex) { DetailStatus = ex.Message; }
-        finally { ActionBusy = false; RaiseCommands(); }
+        finally { FimDoLogAoVivo(); ActionBusy = false; RaiseCommands(); }
     }
 
     /// <summary>
@@ -2475,7 +2650,7 @@ public class MainViewModel : ObservableObject
             if (item == _detailItem) await RefreshNeuralAndSettingsAsync(_detailToken, pastaFoiEscrita: true);
         }
         catch (Exception ex) { DetailStatus = ex.Message; }
-        finally { ActionBusy = false; RaiseCommands(); }
+        finally { FimDoLogAoVivo(); ActionBusy = false; RaiseCommands(); }
     }
 
     /// <summary>Monta a cadeia inteira nesta pasta. O caminho de instalar, e o de consertar —
@@ -2490,7 +2665,9 @@ public class MainViewModel : ObservableObject
             default,
             preferirDxvk: escolha != "dgvoodoo",
             forcarDgVoodoo: escolha == "dgvoodoo",
-            trocarDlss1: AutorizaTrocarDlss1(dir, item.Name));
+            trocarDlss1: AutorizaTrocarDlss1(dir, item.Name),
+            log: NovoLogAoVivo(item));
+        FimDoLogAoVivo();
         DetailStatus = r.Ok
             ? string.Join("  •  ", r.Manual)
             : r.Blocker ?? string.Join("; ", r.Steps);
@@ -2517,7 +2694,7 @@ public class MainViewModel : ObservableObject
             if (item == _detailItem) await RefreshNeuralAndSettingsAsync(_detailToken, pastaFoiEscrita: true);
         }
         catch (Exception ex) { DetailStatus = ex.Message; }
-        finally { ActionBusy = false; RaiseCommands(); }
+        finally { FimDoLogAoVivo(); ActionBusy = false; RaiseCommands(); }
     }
 
     private async Task ToggleNeuralAsync()
@@ -2553,7 +2730,9 @@ public class MainViewModel : ObservableObject
                     default,
                     preferirDxvk: escolha != "dgvoodoo",
                     forcarDgVoodoo: escolha == "dgvoodoo",
-                    trocarDlss1: AutorizaTrocarDlss1(dir, item.Name));
+                    trocarDlss1: AutorizaTrocarDlss1(dir, item.Name),
+                    log: NovoLogAoVivo(item));
+                FimDoLogAoVivo();
                 // Sem `return` na falha: a releitura logo abaixo e que mostra ate onde a cadeia
                 // chegou, e NeuralApplied e recalculado la a partir do disco.
                 NeuralApplied = r.Ok;
@@ -2565,7 +2744,7 @@ public class MainViewModel : ObservableObject
             if (item == _detailItem) await RefreshNeuralAndSettingsAsync(_detailToken, pastaFoiEscrita: true);
         }
         catch (Exception ex) { DetailStatus = ex.Message; }
-        finally { ActionBusy = false; RaiseCommands(); }
+        finally { FimDoLogAoVivo(); ActionBusy = false; RaiseCommands(); }
     }
 
     /// <summary>Traz o nvngx_dlssnr.dll para a biblioteca do launcher. Uma vez só: dali ele serve
@@ -2593,7 +2772,7 @@ public class MainViewModel : ObservableObject
             await CheckNeuralAsync(_detailToken);
         }
         catch (Exception ex) { DetailStatus = ex.Message; }
-        finally { ActionBusy = false; RaiseCommands(); }
+        finally { FimDoLogAoVivo(); ActionBusy = false; RaiseCommands(); }
     }
 
     /// <summary>

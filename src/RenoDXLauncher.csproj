@@ -16,7 +16,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <AssemblyName>RenoDXLauncher</AssemblyName>
     <RootNamespace>RenoDXLauncher</RootNamespace>
-    <Version>1.99.0</Version>
+    <Version>2.0.0</Version>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <!-- Idiomas que o app fala. Sem esta lista o SDK descarta os satelites de recurso,
          e so o idioma neutro (pt-BR, que fica no proprio assembly) sobreviveria.
@@ -29,7 +29,7 @@
     <Company>xdzleo</Company>
     <Authors>xdzleo</Authors>
     <Copyright>Copyright (c) 2026 xdzleo. MIT License.</Copyright>
-    <PackageProjectUrl>https://github.com/xdzleo/renodx-launcher</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/FabioPlunser/dlss5-launcher</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>pt-BR</NeutralLanguage>
     <!-- Manifest proprio: acrescenta supportedOS ao asInvoker que o SDK ja gerava.
@@ -61,6 +61,16 @@
     <!-- Remove o createdump.exe do publish (ver o target no fim do arquivo). -->
     <RemoveDiagnosticTools>true</RemoveDiagnosticTools>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- O banco local (GameDatabase): cache da lista de jogos e dos veredictos da varredura de
+         disco, os snapshots de pasta de jogo e o log de cada instalacao. Traz o e_sqlite3.dll
+         nativo junto; e a unica dependencia nativa do launcher. -->
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.12" />
+    <!-- Fixado acima do 2.1.11, que traz um SQLite com vulnerabilidade conhecida
+         (GHSA-2m69-gcr7-jv3q). -->
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.13" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Inter (SIL OFL 1.1) embutida: a UI fica igual em qualquer Windows, sem depender

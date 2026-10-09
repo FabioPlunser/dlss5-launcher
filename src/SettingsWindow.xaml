@@ -277,6 +277,23 @@
 
                     <Border Height="1" Background="{StaticResource BorderBrush2}" Margin="0,20,0,18"/>
 
+                    <!-- As teclas do ReShade. Uma escolha so, que vale para toda instalacao nova e,
+                         pelo botao, para os jogos que ja estao instalados. As linhas sao montadas
+                         no codigo (ver MontarTeclas): sao todas iguais, e a lista mora em
+                         ReShadeHotkeys.Definicoes. -->
+                    <TextBlock Text="{loc:Tr Settings_Section_Hotkeys}" Style="{StaticResource SectionHead}"/>
+                    <TextBlock Text="{loc:Tr Hotkey_Hint}" Style="{StaticResource Caption}"
+                               TextWrapping="Wrap" Margin="2,0,0,10" LineHeight="16"/>
+                    <StackPanel x:Name="HotkeyRows"/>
+                    <DockPanel Margin="0,8,0,0">
+                        <Button DockPanel.Dock="Right" Padding="13,7" Style="{StaticResource AccentButton}"
+                                Click="OnApplyHotkeys" Content="{loc:Tr Hotkey_ApplyAll}"/>
+                        <TextBlock Text="{loc:Tr Hotkey_ApplyAll_Hint}" Style="{StaticResource Caption}"
+                                   TextWrapping="Wrap" VerticalAlignment="Center" Margin="2,0,12,0"/>
+                    </DockPanel>
+
+                    <Border Height="1" Background="{StaticResource BorderBrush2}" Margin="0,20,0,18"/>
+
                     <DockPanel>
                         <TextBlock Text="{loc:Tr Settings_Language}" Style="{StaticResource H2}"
                                    VerticalAlignment="Center"/>

@@ -37,11 +37,82 @@ public static class Dlss5Installer
     /// <param name="Manual">What the user still has to do themselves, in the game.</param>
     public record Result(bool Ok, string? Blocker, IReadOnlyList<string> Steps, IReadOnlyList<string> Manual);
 
+    /// <summary>
+    /// A instalacao inteira, registrada.
+    ///
+    /// Em volta do trabalho de verdade (<see cref="InstalarAsync"/>) ficam tres coisas que todo
+    /// chamador precisa e nenhum deveria lembrar de fazer:
+    ///
+    ///   1. a fotografia da pasta antes da primeira escrita (SnapshotService), que e o que o
+    ///      "restaurar" devolve;
+    ///   2. o log: cada passo, cada arquivo criado/substituido/removido, com tamanho e versao, ao
+    ///      vivo para a tela e gravado no banco;
+    ///   3. as teclas do ReShade escolhidas nas Configuracoes, no ReShade.ini recem-escrito.
+    /// </summary>
+    /// <param name="log">Recebe as linhas do log ao vivo. Opcional: o log e gravado de qualquer jeito.</param>
     public static async Task<Result> InstallAsync(
         GameInfo game, string targetDir, string? iniPath, string? exePath, string? addonPath,
         DlssIndexService index, ReShadeService reshade, RhiManifestService? rhi = null,
         IProgress<string>? progress = null, CancellationToken ct = default,
-        bool preferirDxvk = true, bool forcarDgVoodoo = false, bool trocarDlss1 = false)
+        bool preferirDxvk = true, bool forcarDgVoodoo = false, bool trocarDlss1 = false,
+        IProgress<InstallLog.Linha>? log = null)
+    {
+        if (AddonService.IsGameRunning(targetDir))
+            return new Result(false, L.T("Error_GameRunning"), [], []);
+
+        using var sessao = new InstallLog(game.InstallDir, [targetDir], log);
+        sessao.Etapa(L.T("InstallLog_Start", game.Name));
+        sessao.Etapa(L.T("InstallLog_Folder", targetDir));
+        try
+        {
+            var perfil = await Task.Run(() => GameProfileService.Detectar(game, targetDir, exePath, forcarDgVoodoo), ct);
+            sessao.Etapa(L.T("InstallLog_Detected", perfil.Resumo));
+            sessao.Etapa(L.T("InstallLog_Route", perfil.Rota));
+            foreach (var a in perfil.Avisos) sessao.Aviso(a);
+        }
+        catch (Exception ex) { Log.Warn($"perfil de {game.Name}: {ex.Message}"); }
+
+        var relato = sessao.ComoProgresso(progress);
+        await Task.Run(() => SnapshotService.Garantir(game.InstallDir, game.Name, relato), ct);
+
+        Result r;
+        try
+        {
+            r = await InstalarAsync(game, targetDir, iniPath, exePath, addonPath, index, reshade, rhi,
+                                    relato, ct, preferirDxvk, forcarDgVoodoo, trocarDlss1);
+            if (r.Ok)
+            {
+                var ini = iniPath ?? Path.Combine(targetDir, "ReShade.ini");
+                ReShadeHotkeys.Aplicar(ini, null, relato);
+                var iniHost = Path.Combine(targetDir, FeederService.Host64Dir, "ReShade.ini");
+                if (File.Exists(iniHost)) ReShadeHotkeys.Aplicar(iniHost);
+                foreach (var m in r.Manual) sessao.Etapa(L.T("InstallLog_Next", m));
+            }
+            else sessao.Erro(r.Blocker ?? L.T("Dlss5_Blocked_Unknown"));
+        }
+        catch (Exception ex)
+        {
+            sessao.Erro(ex.Message);
+            await FecharSessaoAsync(sessao, game.InstallDir, ok: false);
+            throw;
+        }
+        await FecharSessaoAsync(sessao, game.InstallDir, r.Ok);
+        return r;
+    }
+
+    /// <summary>Fecha o log e anota no snapshot o que a instalacao tocou. Fora da thread de quem
+    /// chamou: le a versao de cada arquivo novo e grava no banco, e a interface nao deve esperar.</summary>
+    private static Task FecharSessaoAsync(InstallLog sessao, string installDir, bool ok) => Task.Run(() =>
+    {
+        sessao.Fechar(installDir, ok);
+        SnapshotService.RegistrarTocados(installDir, sessao.Tocados);
+    });
+
+    private static async Task<Result> InstalarAsync(
+        GameInfo game, string targetDir, string? iniPath, string? exePath, string? addonPath,
+        DlssIndexService index, ReShadeService reshade, RhiManifestService? rhi,
+        IProgress<string>? progress, CancellationToken ct,
+        bool preferirDxvk, bool forcarDgVoodoo, bool trocarDlss1)
     {
         var steps = new List<string>();
         var manual = new List<string>();
@@ -261,6 +332,10 @@ public static class Dlss5Installer
                     DxvkService.Deploy(targetDir, progress);
                     Step(L.T("Dlss5_Step_Dxvk"));
                 }
+                // O guia do Feeder pede `dxvk.allowFse = False` para o caminho de 32 bits por
+                // DXVK: em tela cheia exclusiva o DXVK troca de swapchain e a interop com o host
+                // perde as texturas compartilhadas.
+                DxvkService.GarantirConf(targetDir, progress);
                 precisaDgVoodoo = false;   // os dois disputam o d3d9.dll; so um pode ficar
             }
             catch (Exception ex)
@@ -440,6 +515,21 @@ public static class Dlss5Installer
         {
             var bits64 = exePath is null
                          || PeUtils.Inspect(exePath, readImports: false)?.Is64Bit != false;
+            // Com a camada, o ReShade nao mora na pasta do jogo, e o guia do Feeder pede o
+            // caminho dos addons explicito no ini do jogo. Nao sobrescreve uma escolha que ja
+            // esteja la.
+            try
+            {
+                var iniCamada = new IniFile(iniPath);
+                if (iniCamada.Get("ADDON", "AddonPath", ignoreCase: true) is null)
+                {
+                    iniCamada.Set("ADDON", "AddonPath", ".\\");
+                    iniCamada.Save();
+                    progress?.Report(L.T("Dlss5_Step_AddonPath"));
+                }
+            }
+            catch (Exception ex) { Log.Warn($"AddonPath em {iniPath}: {ex.Message}"); }
+
             if (VulkanLayerService.IsRegistered(targetDir, bits64))
             {
                 Step(L.T("Dlss5_Step_VulkanLayer"));
@@ -612,7 +702,7 @@ public static class Dlss5Installer
         // existe justamente porque o jogo NAO tem DLSS. Mandar procurar uma opcao que nao existe
         // faria a pessoa concluir que instalou errado.
         if (!precisaFeeder) manual.Add(L.T("Dlss5_Manual_EnableDlss"));
-        manual.Add(L.T("Dlss5_Manual_Overlay"));
+        manual.Add(L.T("Dlss5_Manual_Overlay", ReShadeHotkeys.Descrever(ReShadeHotkeys.Atual().Overlay)));
 
         var applied = NeuralUpliftService.IsApplied(targetDir, iniPath, addonPath);
         return new Result(applied, applied ? null : L.T("Dlss5_Blocked_Unknown"), steps, manual);

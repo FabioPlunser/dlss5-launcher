@@ -32,7 +32,34 @@ public static partial class StoreScanners
         if (catalog != null)
             tasks.Add(Task.Run(() => ScanGameFolders(catalog)));
         var results = await Task.WhenAll(tasks);
-        var games = results.SelectMany(r => r).ToList();
+        // As lojas registram tambem o que nao e jogo: Proton, runtimes, SDKs, trilhas sonoras.
+        // A varredura de disco ja filtra por evidencia (GameDetection.Avaliar); estas entradas
+        // passam por um filtro mais leve, porque a loja ja disse que sao jogo.
+        var games = await Task.Run(() => results.SelectMany(r => r)
+            .Where(g =>
+            {
+                if (g.Store == GameStore.Folder) return true;
+                if (GameDetection.EntradaDeLojaEhJogo(g, out var motivo)) return true;
+                Log.Info($"scan: {g.Store} '{g.Name}' fora da grade — {motivo}");
+                return false;
+            })
+            .ToList());
+        // Uma pasta solta que CONTEM um jogo registrado por loja e a biblioteca dele, nao um jogo:
+        // `E:\GOG` aparecia como um segundo "Cyberpunk 2077" ao lado do da GOG, porque a varredura
+        // de disco achava o jogo tres niveis abaixo e o resolvedor dava a pasta o nome dele.
+        var pastasDeLoja = games.Where(g => g.Store != GameStore.Folder)
+            .Select(g => Path.TrimEndingDirectorySeparator(Path.GetFullPath(g.InstallDir)) + "\\")
+            .ToList();
+        games.RemoveAll(g =>
+        {
+            if (g.Store != GameStore.Folder || g.EhSobra) return false;
+            var pasta = Path.TrimEndingDirectorySeparator(Path.GetFullPath(g.InstallDir)) + "\\";
+            var contem = pastasDeLoja.Any(l => l.Length > pasta.Length
+                                               && l.StartsWith(pasta, StringComparison.OrdinalIgnoreCase));
+            if (contem) Log.Info($"scan: {g.InstallDir} contem um jogo de loja; e biblioteca, fica fora");
+            return contem;
+        });
+
         // de-dup by normalized install dir (a game can appear via more than one scanner);
         // store order = trust order, so the launcher-native entry wins over the folder scan
         return games
@@ -601,7 +628,15 @@ public static partial class StoreScanners
                         // Downloads, Area de Trabalho e raiz de unidade nao sao jogos, por mais
                         // executaveis que tenham dentro.
                         if (FolderGameResolver.EhDeposito(dir)) continue;
-                        if (!TemExeDeJogo(dir)) continue;
+                        // Evidencia de JOGO, e nao so "um .exe que nao parece instalador": toda
+                        // pasta de aplicativo tem um exe com nome de aplicativo, e era assim que
+                        // Python, ferramentas e o proprio cliente da Steam entravam na grade.
+                        var veredicto = GameDetection.AvaliarComCache(dir);
+                        if (!veredicto.EhJogo)
+                        {
+                            Log.Info($"folder scan: {dir} nao e jogo — {veredicto.Motivo}");
+                            continue;
+                        }
                         // O resolvedor da o nome: do catalogo quando reconhece, senao do
                         // ProductName do executavel, senao da pasta sem as decoracoes de release.
                         var resolvido = FolderGameResolver.Resolve(dir, catalog);
@@ -659,7 +694,8 @@ public static partial class StoreScanners
             var filhos = Directory.GetDirectories(dir);
             if (filhos.Length < 2 || filhos.Length > 300) return false;
             var jogos = filhos.Count(f => !NaoEhJogoDir.Contains(Path.GetFileName(f))
-                                          && TemExeDeJogo(f));
+                                          && TemExeDeJogo(f)
+                                          && GameDetection.AvaliarComCache(f).EhJogo);
             return jogos >= 2 && jogos * 2 >= filhos.Length;
         }
         catch { return false; }

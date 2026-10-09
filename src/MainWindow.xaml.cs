@@ -47,6 +47,13 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         DataContext = _vm;
+        // O log da instalacao acompanha a ultima linha enquanto esta ao vivo; o gravado abre do
+        // comeco, que e onde esta o "o que foi detectado".
+        _vm.LogDeInstalacao.CollectionChanged += (_, e) =>
+        {
+            if (!_vm.LogAoVivo || e.NewItems is not { Count: > 0 } novos) return;
+            InstallLogList.ScrollIntoView(novos[^1]);
+        };
         // Antes do primeiro quadro: aplicado depois, a barra pisca em branco.
         SourceInitialized += (_, _) => AplicarVidroDaJanela();
         Loaded += async (_, _) =>

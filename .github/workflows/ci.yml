@@ -21,6 +21,11 @@ jobs:
       - name: Build
         run: dotnet build src/RenoDXLauncher.csproj -c Release --nologo
 
+      # Deteccao de jogo, fotografia + restaurar bit a bit, log da instalacao, teclas do
+      # ReShade e cache no SQLite, contra pastas de mentira. Sai com != 0 se algo falhar.
+      - name: Testes dos recursos
+        run: dotnet run --project tests/FeatureTests -c Release --nologo
+
       # Texto de tela em portugues sem acento passa despercebido na revisao e chega ao
       # usuario. Confere tambem que os placeholders {0} sao os mesmos em todos os idiomas:
       # um {1} sobrando so estoura em runtime, no idioma que ninguem testou.

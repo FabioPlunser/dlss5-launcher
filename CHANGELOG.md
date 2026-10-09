@@ -1,5 +1,54 @@
 # Changelog
 
+## v2.0.0
+
+### Detectar o jogo e ativar com um clique
+
+O cartão de DLSS 5 agora mostra, **antes** do clique, o que o launcher descobriu: motor, API,
+32 ou 64 bits, DLSS próprio (com a versão), a rota que isso decide — direta, Ponte, Feeder ou
+OptiScaler — e a lista exata do que será instalado. O botão **Ativar DLSS 5** faz o resto.
+
+### Log da instalação
+
+Cada passo e cada arquivo criado, substituído, apagado ou renomeado na pasta do jogo, com tamanho
+e versão, ao vivo durante a instalação. O último log fica guardado e pode ser copiado.
+
+### Fotografia antes da primeira instalação
+
+Antes de escrever qualquer coisa, o launcher fotografa a pasta do jogo e guarda cópia de todo
+arquivo que a cadeia pode sobrescrever. **Restaurar** devolve os originais, apaga o que o launcher
+acrescentou — inclusive o que nenhum manifesto conhecia (`.pre-dxvk`, `host64\`, logs do ReShade e
+do DXVK) — e não toca no que o próprio jogo mudou (saves, atualizações).
+
+### Só jogos na lista
+
+A varredura de disco exige evidência de jogo (motor, SDK de loja, API gráfica **e** de entrada) e
+recusa aplicativos (Python, Electron/CEF, clientes de loja). Proton, Steam Linux Runtime, Wallpaper
+Engine e trilhas sonoras saem da grade. Uma pasta que contém um jogo de loja é biblioteca, não jogo.
+
+### Lista em cache (SQLite)
+
+A grade abre na hora com a última lista e a varredura roda por trás; os veredictos da varredura de
+disco ficam guardados.
+
+### Teclas do ReShade nas Configurações
+
+Overlay, efeitos, captura, recarregar, modo de desempenho e presets — gravadas no ReShade.ini a
+cada instalação, e aplicáveis aos jogos já instalados.
+
+### Instalação conforme o guia do DLSS5-Feeder
+
+- `AddonPath=.\` no ReShade.ini da rota Vulkan e `dxvk.allowFse = False` na rota DXVK de 32 bits.
+- Aviso do NVIDIA Smooth Motion em jogo Vulkan.
+- Aviso quando o driver é 616.64 ou mais novo com o add-on embutido 4.70, que tem falha relatada.
+- Anti-cheat da EA (Javelin — Apex Legends, Battlefield 6), GameGuard, XIGNCODE3, ACE e Ricochet
+  passam a ser detectados.
+
+### Outros
+
+- Atualizações do launcher passam a vir deste repositório.
+- CI roda os testes dos recursos novos, e a release só sai com eles passando.
+
 ## v1.99.0
 
 ### Nova identidade visual

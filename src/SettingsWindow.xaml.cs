@@ -44,6 +44,115 @@ public partial class SettingsWindow : Window
         UpdateTexts();
         Refresh();
         CarregarReleases();
+        MontarTeclas();
+    }
+
+    // ------------------------------------------------------------------ teclas do ReShade
+
+    /// <summary>O botao que esta esperando uma tecla, e de qual chave do ini.</summary>
+    private (System.Windows.Controls.Button Botao, string Chave)? _capturando;
+
+    private void MontarTeclas()
+    {
+        HotkeyRows.Children.Clear();
+        var atual = ReShadeHotkeys.Atual(_vm.Config);
+        foreach (var d in ReShadeHotkeys.Definicoes)
+        {
+            var linha = new System.Windows.Controls.DockPanel { Margin = new Thickness(0, 0, 0, 7) };
+            var limpar = new System.Windows.Controls.TextBlock
+            {
+                Text = L.T("Hotkey_Reset"),
+                FontSize = 11,
+                Cursor = System.Windows.Input.Cursors.Hand,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(10, 0, 0, 0),
+                Foreground = (Brush)FindResource("AccentBrush"),
+                ToolTip = L.T("Hotkey_Reset_Tooltip"),
+                Visibility = _vm.Config.ReShadeKeys.ContainsKey(d.Chave) ? Visibility.Visible : Visibility.Hidden,
+            };
+            var chave = d.Chave;
+            limpar.MouseLeftButtonUp += (_, _) =>
+            {
+                _vm.Config.ReShadeKeys.Remove(chave);
+                SalvarTeclas();
+            };
+            System.Windows.Controls.DockPanel.SetDock(limpar, System.Windows.Controls.Dock.Right);
+            var botao = new System.Windows.Controls.Button
+            {
+                Content = ReShadeHotkeys.Descrever(atual.Todas[d.Chave]),
+                MinWidth = 150,
+                Padding = new Thickness(10, 5, 10, 5),
+                FontWeight = FontWeights.SemiBold,
+                ToolTip = L.T("Hotkey_Capture_Tooltip"),
+            };
+            botao.Click += (_, _) =>
+            {
+                _capturando = (botao, chave);
+                botao.Content = L.T("Hotkey_PressKey");
+                botao.Focus();
+            };
+            botao.PreviewKeyDown += OnHotkeyKeyDown;
+            botao.LostKeyboardFocus += (_, _) =>
+            {
+                if (_capturando?.Botao == botao) { _capturando = null; MontarTeclas(); }
+            };
+            System.Windows.Controls.DockPanel.SetDock(botao, System.Windows.Controls.Dock.Right);
+            linha.Children.Add(limpar);
+            linha.Children.Add(botao);
+            linha.Children.Add(new System.Windows.Controls.TextBlock
+            {
+                Text = L.T(d.RotuloKey),
+                FontSize = 12.5,
+                VerticalAlignment = VerticalAlignment.Center,
+                Foreground = (Brush)FindResource("TextBrush"),
+            });
+            HotkeyRows.Children.Add(linha);
+        }
+    }
+
+    /// <summary>
+    /// A tecla seguinte vira o atalho. Esc cancela, Backspace/Delete desliga o atalho (codigo 0).
+    /// Modificador sozinho espera a tecla de verdade: e assim que se compoe Ctrl+Shift+F2.
+    /// </summary>
+    private void OnHotkeyKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (_capturando is not { } c || !ReferenceEquals(sender, c.Botao)) return;
+        e.Handled = true;
+        var tecla = e.Key == System.Windows.Input.Key.System ? e.SystemKey : e.Key;
+        if (tecla == System.Windows.Input.Key.Escape)
+        {
+            _capturando = null;
+            MontarTeclas();
+            return;
+        }
+        ReShadeHotkeys.Atalho? atalho = tecla is System.Windows.Input.Key.Back or System.Windows.Input.Key.Delete
+            ? new ReShadeHotkeys.Atalho(0, false, false, false)
+            : ReShadeHotkeys.DoTeclado(e);
+        if (atalho is not { } a) return;
+        _capturando = null;
+        _vm.Config.ReShadeKeys[c.Chave] = a.ParaIni();
+        SalvarTeclas();
+    }
+
+    private void SalvarTeclas()
+    {
+        if (!_vm.Config.TrySave() && _vm.Config.LastSaveError is { } erro) Say(erro, false);
+        MontarTeclas();
+    }
+
+    private void OnApplyHotkeys(object sender, RoutedEventArgs e)
+    {
+        if (_vm.Config.ReShadeKeys.Count == 0)
+        {
+            Say(L.T("Hotkey_NothingToApply"), false);
+            return;
+        }
+        try
+        {
+            var n = ReShadeHotkeys.AplicarEmTodos(InstallDirs(), _vm.Config);
+            Say(L.T("Hotkey_AppliedAll", n), true);
+        }
+        catch (Exception ex) { Say(ex.Message, false); }
     }
 
     private IEnumerable<string> InstallDirs() =>

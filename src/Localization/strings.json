@@ -768,7 +768,6 @@
     "note": "Titulo do cartao.",
     "pt-BR": "Addon do DLSS 5"
   },
-
   "Dialog_Notes_Label": {
     "en": "HOW TO SET UP THIS GAME",
     "pt-BR": "COMO AJUSTAR ESTE JOGO"
@@ -1189,8 +1188,8 @@
     "pt-BR": "Ligue o {0} nas opções gráficas do jogo (modo Qualidade) — o OptiScaler redireciona para o DLSS 5."
   },
   "Dlss5_Manual_Overlay": {
-    "en": "Press Home in the game to open the overlay and check that the state reads ACTIVE.",
-    "pt-BR": "Aperte Home no jogo para abrir o overlay e conferir se o estado diz ATIVO."
+    "en": "Press {0} in the game to open the overlay and check that the state reads ACTIVE.",
+    "pt-BR": "Aperte {0} no jogo para abrir o overlay e conferir se o estado diz ATIVO."
   },
   "Dlss5_Manual_UseDx11Exe": {
     "en": "Launch the game through its DirectX 11 executable — the bridge has nothing to hook in a Vulkan one.",
@@ -3142,5 +3141,337 @@
   "Vulkan_LayerRegistered": {
     "en": "ReShade registered as a Vulkan layer (this game does not load a proxy DLL).",
     "pt-BR": "ReShade registrado como camada Vulkan (este jogo não carrega DLL de proxy)."
+  },
+  "InstallLog_Start": {
+    "en": "Installing DLSS 5 in {0}",
+    "pt-BR": "Instalando DLSS 5 em {0}"
+  },
+  "InstallLog_Folder": {
+    "en": "Folder: {0}",
+    "pt-BR": "Pasta: {0}"
+  },
+  "InstallLog_Detected": {
+    "en": "Detected: {0}",
+    "pt-BR": "Detectado: {0}"
+  },
+  "InstallLog_Route": {
+    "en": "Route: {0}",
+    "pt-BR": "Rota: {0}"
+  },
+  "InstallLog_Next": {
+    "en": "Next: {0}",
+    "pt-BR": "Próximo passo: {0}"
+  },
+  "InstallLog_TitleLive": {
+    "en": "Installing…",
+    "pt-BR": "Instalando…"
+  },
+  "InstallLog_TitleLast": {
+    "en": "Last install log · {0}",
+    "pt-BR": "Log da última instalação · {0}"
+  },
+  "InstallLog_Copy": {
+    "en": "Copy",
+    "pt-BR": "Copiar"
+  },
+  "InstallLog_Show": {
+    "en": "Show",
+    "pt-BR": "Mostrar"
+  },
+  "InstallLog_Hide": {
+    "en": "Hide",
+    "pt-BR": "Ocultar"
+  },
+  "InstallLog_Copied": {
+    "en": "Install log copied to the clipboard.",
+    "pt-BR": "Log da instalação copiado."
+  },
+  "InstallLog_WatcherError": {
+    "en": "file watcher: {0}",
+    "pt-BR": "observador de arquivos: {0}"
+  },
+  "InstallLog_RenamedFrom": {
+    "en": "(was {0})",
+    "pt-BR": "(era {0})"
+  },
+  "InstallLog_Replaced": {
+    "en": "(replaced the original)",
+    "pt-BR": "(substituiu o original)"
+  },
+  "InstallLog_Done": {
+    "en": "Done: {0} new files, {1} replaced, {2} removed.",
+    "pt-BR": "Concluído: {0} arquivos novos, {1} substituídos, {2} removidos."
+  },
+  "InstallLog_Interrupted": {
+    "en": "Stopped: {0} new files, {1} replaced, {2} removed so far.",
+    "pt-BR": "Interrompido: {0} arquivos novos, {1} substituídos, {2} removidos até aqui."
+  },
+  "Snapshot_Taking": {
+    "en": "Taking a snapshot of the game folder before the first change…",
+    "pt-BR": "Fotografando a pasta do jogo antes da primeira mudança…"
+  },
+  "Snapshot_Taken": {
+    "en": "Snapshot saved: {0} files listed, {1} originals copied.",
+    "pt-BR": "Fotografia guardada: {0} arquivos listados, {1} originais copiados."
+  },
+  "Snapshot_Confirm_Body": {
+    "en": "This returns {0} to how it was before the launcher first changed it.",
+    "pt-BR": "Isto devolve {0} ao que era antes de o launcher mexer nela pela primeira vez."
+  },
+  "Snapshot_Confirm_Plan": {
+    "en": "From the snapshot of {0}: {1} files go back to their original version and {2} files added by the launcher are deleted.",
+    "pt-BR": "Pela fotografia de {0}: {1} arquivos voltam à versão original e {2} arquivos que o launcher acrescentou são apagados."
+  },
+  "Snapshot_Confirm_Kept": {
+    "en": "{0} files changed without the launcher (a game update?) and stay as they are: {1}",
+    "pt-BR": "{0} arquivos mudaram sem passar pelo launcher (atualização do jogo?) e ficam como estão: {1}"
+  },
+  "Snapshot_Confirm_NotClean": {
+    "en": "The snapshot was taken after an older launcher version had already installed here; those older changes are undone from the backup manifest.",
+    "pt-BR": "A fotografia foi tirada depois de uma versão antiga do launcher já ter instalado aqui; essas mudanças antigas são desfeitas pelo manifesto de backup."
+  },
+  "Snapshot_KeptStatus": {
+    "en": "{0} files changed by the game itself were kept.",
+    "pt-BR": "{0} arquivos alterados pelo próprio jogo foram mantidos."
+  },
+  "Main_Status_FromCache": {
+    "en": "{0} games (from the last scan)",
+    "pt-BR": "{0} jogos (da última varredura)"
+  },
+  "Main_Status_Rescanning": {
+    "en": "{0} games · checking stores and drives for changes…",
+    "pt-BR": "{0} jogos · procurando mudanças nas lojas e nos discos…"
+  },
+  "Profile_Bits": {
+    "en": "{0}-bit",
+    "pt-BR": "{0} bits"
+  },
+  "Profile_NativeDlss": {
+    "en": "has its own DLSS",
+    "pt-BR": "tem DLSS próprio"
+  },
+  "Profile_NativeDlssVersion": {
+    "en": "own DLSS {0}",
+    "pt-BR": "DLSS próprio {0}"
+  },
+  "Profile_OtherUpscaler": {
+    "en": "no DLSS, has {0}",
+    "pt-BR": "sem DLSS, tem {0}"
+  },
+  "Profile_NoDlss": {
+    "en": "no DLSS",
+    "pt-BR": "sem DLSS"
+  },
+  "Profile_Activate": {
+    "en": "Activate DLSS 5",
+    "pt-BR": "Ativar DLSS 5"
+  },
+  "Profile_Detected": {
+    "en": "DETECTED",
+    "pt-BR": "DETECTADO"
+  },
+  "Profile_RouteLabel": {
+    "en": "Route:",
+    "pt-BR": "Rota:"
+  },
+  "Profile_PlanToggle": {
+    "en": "What will be installed",
+    "pt-BR": "O que será instalado"
+  },
+  "Profile_Warn_AntiCheat": {
+    "en": "{0} found: installing can get the account banned. Only for offline play.",
+    "pt-BR": "{0} encontrado: instalar pode banir a conta. Só para jogar offline."
+  },
+  "Profile_Warn_Dlss1": {
+    "en": "The game ships DLSS 1.0. Activating replaces it, and the game's own DLSS must be turned off in its options.",
+    "pt-BR": "O jogo traz DLSS 1.0. Ativar substitui o arquivo, e o DLSS do próprio jogo precisa ser desligado nas opções dele."
+  },
+  "Profile_Warn_FeederDlaa": {
+    "en": "No DLSS in the game: the pass runs as DLAA at full resolution. Image quality goes up, FPS does not. Turn off MSAA/SSAA in the game.",
+    "pt-BR": "Jogo sem DLSS: o pass roda em DLAA na resolução cheia. A imagem melhora, o FPS não. Desligue MSAA/SSAA no jogo."
+  },
+  "Profile_Warn_SmoothMotion": {
+    "en": "Vulkan route: turn off NVIDIA Smooth Motion for this game, otherwise the generated frames are not processed and the image flickers.",
+    "pt-BR": "Rota Vulkan: desligue o NVIDIA Smooth Motion neste jogo, senão os quadros gerados não são processados e a imagem pisca."
+  },
+  "Profile_Warn_DriverAddon": {
+    "en": "Driver {0}: the bundled neural add-on (build 4.70) is reported to crash on drivers 616.64 and newer. If the game crashes, import renodx-dlss5 v6.1+ in Settings or use driver 616.56.",
+    "pt-BR": "Driver {0}: o add-on neural embutido (build 4.70) tem falha relatada a partir do driver 616.64. Se o jogo fechar, importe o renodx-dlss5 v6.1+ nas Configurações ou use o driver 616.56."
+  },
+  "Route_MultiApi": {
+    "en": "one executable per API: bridge and Feeder both installed",
+    "pt-BR": "um executável por API: Ponte e Feeder instalados juntos"
+  },
+  "Route_Bridge": {
+    "en": "DX11 bridge (the game's own DLSS runs on a private D3D12 device)",
+    "pt-BR": "Ponte DX11 (o DLSS do próprio jogo roda num device D3D12 à parte)"
+  },
+  "Route_OptiScaler": {
+    "en": "OptiScaler redirects the game's {0} to DLSS",
+    "pt-BR": "OptiScaler redireciona o {0} do jogo para o DLSS"
+  },
+  "Route_Feeder": {
+    "en": "Feeder (motion vectors and depth fabricated by a shader)",
+    "pt-BR": "Feeder (motion vectors e depth fabricados por um shader)"
+  },
+  "Route_Direct": {
+    "en": "direct: the add-on hooks the game's own DLSS",
+    "pt-BR": "direta: o add-on engancha o DLSS do próprio jogo"
+  },
+  "Route_None": {
+    "en": "no route found for this executable",
+    "pt-BR": "nenhuma rota para este executável"
+  },
+  "Plan_DxvkD3d10": {
+    "en": "DXVK {0} (d3d10.dll, d3d10_1.dll, d3d10core.dll, d3d11.dll, dxgi.dll): Direct3D 10 → Vulkan",
+    "pt-BR": "DXVK {0} (d3d10.dll, d3d10_1.dll, d3d10core.dll, d3d11.dll, dxgi.dll): Direct3D 10 → Vulkan"
+  },
+  "Plan_Dxvk": {
+    "en": "DXVK d3d9.dll: Direct3D 9 → Vulkan, plus dxvk.conf with dxvk.allowFse = False",
+    "pt-BR": "DXVK d3d9.dll: Direct3D 9 → Vulkan, mais dxvk.conf com dxvk.allowFse = False"
+  },
+  "Plan_DgVoodoo": {
+    "en": "dgVoodoo2 D3D9.dll + dgVoodoo.conf: Direct3D 9 → Direct3D 11",
+    "pt-BR": "dgVoodoo2 D3D9.dll + dgVoodoo.conf: Direct3D 9 → Direct3D 11"
+  },
+  "Plan_ReShadeLayer": {
+    "en": "ReShade with add-on support as a Vulkan layer (registered once, machine-wide), AddonPath=.\\ in ReShade.ini",
+    "pt-BR": "ReShade com suporte a add-ons como camada Vulkan (registrada uma vez, para a máquina), AddonPath=.\\ no ReShade.ini"
+  },
+  "Plan_ReShadeKeep": {
+    "en": "ReShade already present as {0}: kept",
+    "pt-BR": "ReShade já presente como {0}: mantido"
+  },
+  "Plan_ReShadeProxy": {
+    "en": "ReShade with add-on support as {0}",
+    "pt-BR": "ReShade com suporte a add-ons como {0}"
+  },
+  "Plan_ReShadeProxyAuto": {
+    "en": "the proxy DLL the executable loads (dxgi.dll, d3d11.dll…)",
+    "pt-BR": "a DLL proxy que o executável carrega (dxgi.dll, d3d11.dll…)"
+  },
+  "Plan_Addon": {
+    "en": "Neural Rendering add-on ({0})",
+    "pt-BR": "Add-on de Neural Rendering ({0})"
+  },
+  "Plan_Runtime": {
+    "en": "DLSS runtimes {0} and {1} next to the executable",
+    "pt-BR": "Runtimes de DLSS {0} e {1} ao lado do executável"
+  },
+  "Plan_Bridge": {
+    "en": "DX11 bridge add-on (dlss5-dx11-bridge.addon64)",
+    "pt-BR": "Add-on da Ponte DX11 (dlss5-dx11-bridge.addon64)"
+  },
+  "Plan_OptiScaler": {
+    "en": "OptiScaler, redirecting {0} to DLSS",
+    "pt-BR": "OptiScaler, redirecionando {0} para o DLSS"
+  },
+  "Plan_Feeder": {
+    "en": "DLSS5-Feeder: {0} and reshade-shaders\\Shaders\\{1} (DLSS5_MV_PROVIDER=3)",
+    "pt-BR": "DLSS5-Feeder: {0} e reshade-shaders\\Shaders\\{1} (DLSS5_MV_PROVIDER=3)"
+  },
+  "Plan_Lumenite": {
+    "en": "LumeniteFX Kernel motion vectors (lumenite_*.fx, includes, blue-noise texture), enabled above DLSS 5 Feed",
+    "pt-BR": "Motion vectors do LumeniteFX Kernel (lumenite_*.fx, includes, textura de blue noise), ativado acima do DLSS 5 Feed"
+  },
+  "Plan_Host64": {
+    "en": "64-bit helper process in {0}\\ ({1}) with its own ReShade, add-on and runtimes",
+    "pt-BR": "Processo auxiliar de 64 bits em {0}\\ ({1}) com ReShade, add-on e runtimes próprios"
+  },
+  "Plan_Ini": {
+    "en": "ReShade.ini: add-on loaded early (LoadFromDllMain) and neural pass switched on",
+    "pt-BR": "ReShade.ini: add-on carregado cedo (LoadFromDllMain) e pass neural ligado"
+  },
+  "Plan_Hotkeys": {
+    "en": "Overlay key: {0} (change it in Settings)",
+    "pt-BR": "Tecla do overlay: {0} (mude nas Configurações)"
+  },
+  "Dlss5_Step_AddonPath": {
+    "en": "ReShade.ini: AddonPath set to the game folder (Vulkan layer)",
+    "pt-BR": "ReShade.ini: AddonPath apontado para a pasta do jogo (camada Vulkan)"
+  },
+  "Dxvk_ConfFse": {
+    "en": "dxvk.conf: dxvk.allowFse = False (needed by the 32-bit helper)",
+    "pt-BR": "dxvk.conf: dxvk.allowFse = False (exigido pelo auxiliar de 32 bits)"
+  },
+  "Settings_Section_Hotkeys": {
+    "en": "RESHADE HOTKEYS",
+    "pt-BR": "TECLAS DO RESHADE"
+  },
+  "Hotkey_Hint": {
+    "en": "Written to ReShade.ini on every install. Click a key to change it; Backspace turns it off, Esc cancels.",
+    "pt-BR": "Gravadas no ReShade.ini a cada instalação. Clique numa tecla para trocar; Backspace desliga, Esc cancela."
+  },
+  "Hotkey_Overlay": {
+    "en": "Open the overlay",
+    "pt-BR": "Abrir o overlay"
+  },
+  "Hotkey_Effects": {
+    "en": "Toggle effects on/off",
+    "pt-BR": "Ligar/desligar os efeitos"
+  },
+  "Hotkey_Screenshot": {
+    "en": "Screenshot",
+    "pt-BR": "Captura de tela"
+  },
+  "Hotkey_Reload": {
+    "en": "Reload effects",
+    "pt-BR": "Recarregar efeitos"
+  },
+  "Hotkey_PerformanceMode": {
+    "en": "Performance mode",
+    "pt-BR": "Modo de desempenho"
+  },
+  "Hotkey_NextPreset": {
+    "en": "Next preset",
+    "pt-BR": "Próximo preset"
+  },
+  "Hotkey_PreviousPreset": {
+    "en": "Previous preset",
+    "pt-BR": "Preset anterior"
+  },
+  "Hotkey_None": {
+    "en": "none",
+    "pt-BR": "nenhuma"
+  },
+  "Hotkey_PressKey": {
+    "en": "Press a key…",
+    "pt-BR": "Aperte uma tecla…"
+  },
+  "Hotkey_Capture_Tooltip": {
+    "en": "Click, then press the new key (with Ctrl/Shift/Alt if you want).",
+    "pt-BR": "Clique e aperte a tecla nova (com Ctrl/Shift/Alt, se quiser)."
+  },
+  "Hotkey_Reset": {
+    "en": "default",
+    "pt-BR": "padrão"
+  },
+  "Hotkey_Reset_Tooltip": {
+    "en": "Back to ReShade's default",
+    "pt-BR": "Volta ao padrão do ReShade"
+  },
+  "Hotkey_ApplyAll": {
+    "en": "Apply to installed games",
+    "pt-BR": "Aplicar aos jogos instalados"
+  },
+  "Hotkey_ApplyAll_Hint": {
+    "en": "Updates the ReShade.ini of every game already installed. Close the games first.",
+    "pt-BR": "Atualiza o ReShade.ini de todo jogo já instalado. Feche os jogos antes."
+  },
+  "Hotkey_NothingToApply": {
+    "en": "No key was changed: every game already uses ReShade's defaults.",
+    "pt-BR": "Nenhuma tecla foi trocada: os jogos já usam o padrão do ReShade."
+  },
+  "Hotkey_AppliedAll": {
+    "en": "Hotkeys written to {0} ReShade.ini files.",
+    "pt-BR": "Teclas gravadas em {0} arquivos ReShade.ini."
+  },
+  "Hotkey_Applied": {
+    "en": "ReShade hotkeys applied (overlay: {0})",
+    "pt-BR": "Teclas do ReShade aplicadas (overlay: {0})"
+  },
+  "Profile_Warn_FeederVulkanDlss": {
+    "en": "The game's own DLSS runs on Vulkan here, which the neural add-on cannot hook, so the Feeder drives the pass as DLAA at full resolution. Image quality goes up, FPS does not.",
+    "pt-BR": "O DLSS do próprio jogo roda em Vulkan aqui, e o add-on neural não o engancha; o Feeder conduz o pass em DLAA na resolução cheia. A imagem melhora, o FPS não."
   }
 }

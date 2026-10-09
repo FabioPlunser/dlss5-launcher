@@ -59,6 +59,19 @@ jobs:
             echo "::warning::SignPath nao configurado - publicando release NAO ASSINADA."
           fi
 
+      # A tag e a versao do csproj tem de concordar: a interface mostra a do csproj, e o
+      # atualizador compara a da tag. Divergentes, o app se ofereceria para "atualizar" para
+      # ele mesmo.
+      - name: A tag bate com o csproj?
+        shell: pwsh
+        run: |
+          [xml]$proj = Get-Content src/RenoDXLauncher.csproj
+          $v = ($proj.Project.PropertyGroup | Where-Object { $_.Version } | Select-Object -First 1).Version
+          if ($v -ne '${{ steps.ver.outputs.version }}') { throw "csproj diz $v, a tag diz ${{ steps.ver.outputs.version }}" }
+
+      - name: Testes dos recursos
+        run: dotnet run --project tests/FeatureTests -c Release --nologo
+
       # ---------------------------------------------------------------- build --
 
       # -p:Version vem da tag de proposito: o .iss tira o VersionInfo do PE do binario

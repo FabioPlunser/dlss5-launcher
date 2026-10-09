@@ -62,6 +62,13 @@ public class LauncherConfig
     /// </summary>
     public string? AddonEscolhidoSha { get; set; }
 
+    /// <summary>
+    /// Teclas do ReShade escolhidas na tela de Configuracoes: nome da tecla no ReShade.ini
+    /// ("KeyOverlay") para o valor no formato dele ("36,0,0,0" = Home, sem Ctrl/Shift/Alt).
+    /// Ausente = a tecla padrao do ReShade. Ver ReShadeHotkeys.
+    /// </summary>
+    public Dictionary<string, string> ReShadeKeys { get; set; } = new();
+
     /// <summary>Idioma da interface, como tag BCP-47 ("pt-BR", "en"). Vazio ou ausente
     /// significa "seguir o Windows", que e o padrao e o que quase todo mundo quer.</summary>
     public string? Language { get; set; }
